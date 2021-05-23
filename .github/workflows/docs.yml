@@ -1,9 +1,8 @@
 name: Build documentation
 
 on:
-  push:
-    branches:
-      - maint_2_8
+  # NOMERGE
+  workflow_dispatch:
 
 jobs:
   docs:

@@ -1,7 +1,8 @@
 ---
 name: Build packages
+
 on:
-  - workflow_dispatch
+  push:
 
 
 jobs:

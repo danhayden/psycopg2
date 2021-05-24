@@ -5,6 +5,8 @@ What's new in psycopg 2.9
 -------------------------
 
 - Dropped support for Python 2.7, 3.4, 3.5 (:tickets:#1198, #1000, #1197).
+- Escape table and column names in `~cursor.copy_from()` and
+  `~cursor.copy_to()`.
 - Reclassified SQLSTATE connection exceptions (08XXX) as
   `~psycopg2.errors.OperationalError` (subclass of previously used
   `~psycopg2.errors.DatabaseError`) (:ticket:`#1148`).

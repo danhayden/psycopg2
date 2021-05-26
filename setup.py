@@ -378,11 +378,11 @@ For further information please check the 'doc/src/install.rst' file (also at
             self.include_dirs.append(pg_config_helper.query("includedir-server"))
 
             # add includedirs from cppflags, libdirs from ldflags
-            for token in pg_config_helper.query("ldflags"):
+            for token in pg_config_helper.query("ldflags").split():
                 if token.startswith("-L"):
                     self.library_dirs.append(token[2:])
 
-            for token in pg_config_helper.query("cppflags"):
+            for token in pg_config_helper.query("cppflags").split():
                 if token.startswith("-I"):
                     self.include_dirs.append(token[2:])
 

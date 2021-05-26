@@ -41,7 +41,7 @@ gsed -i "s/^setup(name=\"psycopg2\"/setup(name=\"${PACKAGE_NAME}\"/" \
 
 # Build the wheels
 WHEELDIR="${PRJDIR}/wheels"
-pip wheel -w ${WHEELDIR} .
+pip wheel -v -w ${WHEELDIR} .
 delocate-listdeps ${WHEELDIR}/*.whl
 
 # Check where is the libpq. I'm gonna kill it for testing

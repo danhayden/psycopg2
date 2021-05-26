@@ -121,6 +121,7 @@ For further information please check the 'doc/src/install.rst' file (also at
             raise Warning(pg_config_process.stderr.readline())
         if not isinstance(result, str):
             result = result.decode('ascii')
+        print(f"pg_config --{attr_name} returned {result}")
         return result
 
     def find_on_path(self, exename, path_directories=None):
@@ -380,10 +381,12 @@ For further information please check the 'doc/src/install.rst' file (also at
             # add includedirs from cppflags, libdirs from ldflags
             for token in pg_config_helper.query("ldflags").split():
                 if token.startswith("-L"):
+                    print(f"adding {token[2:]} to library_dirs")
                     self.library_dirs.append(token[2:])
 
             for token in pg_config_helper.query("cppflags").split():
                 if token.startswith("-I"):
+                    print(f"adding {token[2:]} to include_dirs")
                     self.include_dirs.append(token[2:])
 
             pgversion = pg_config_helper.query("version").split()[1]

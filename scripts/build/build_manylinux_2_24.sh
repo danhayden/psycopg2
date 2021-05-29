@@ -7,8 +7,8 @@
 set -euo pipefail
 set -x
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PRJDIR="$( cd "${DIR}/../.." && pwd )"
+dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+prjdir="$( cd "${dir}/../.." && pwd )"
 
 # Build all the available versions, or just the ones specified in PYVERS
 if [ ! "${PYVERS:-}" ]; then
@@ -16,14 +16,14 @@ if [ ! "${PYVERS:-}" ]; then
 fi
 
 # Find psycopg version
-VERSION=$(grep -e ^PSYCOPG_VERSION "${PRJDIR}/setup.py" | sed "s/.*'\(.*\)'/\1/")
+version=$(grep -e ^PSYCOPG_VERSION "${prjdir}/setup.py" | sed "s/.*'\(.*\)'/\1/")
 # A gratuitous comment to fix broken vim syntax file: '")
-DISTDIR="${PRJDIR}/dist/psycopg2-$VERSION"
+distdir="${prjdir}/dist/psycopg2-$version"
 
 # Replace the package name
 if [[ "${PACKAGE_NAME:-}" ]]; then
     sed -i "s/^setup(name=\"psycopg2\"/setup(name=\"${PACKAGE_NAME}\"/" \
-        "${PRJDIR}/setup.py"
+        "${prjdir}/setup.py"
 fi
 
 # Install prerequisite libraries
@@ -34,14 +34,14 @@ apt-get -y update
 apt-get install -y libpq-dev
 
 # Create the wheel packages
-for PYVER in $PYVERS; do
-    PYBIN="/opt/python/${PYVER}/bin"
-    "${PYBIN}/pip" wheel "${PRJDIR}" -w "${PRJDIR}/dist/"
+for pyver in $PYVERS; do
+    pybin="/opt/python/${pyver}/bin"
+    "${pybin}/pip" wheel "${prjdir}" -w "${prjdir}/dist/"
 done
 
 # Bundle external shared libraries into the wheels
-for WHL in "${PRJDIR}"/dist/*.whl; do
-    auditwheel repair "$WHL" -w "$DISTDIR"
+for whl in "${prjdir}"/dist/*.whl; do
+    auditwheel repair "$whl" -w "$distdir"
 done
 
 # Make sure the libpq is not in the system
@@ -51,22 +51,22 @@ for f in $(find /usr/lib /usr/lib64 -name libpq\*) ; do
 done
 
 # Install packages and test
-cd "${PRJDIR}"
-for PYVER in $PYVERS; do
-    PYBIN="/opt/python/${PYVER}/bin"
-    "${PYBIN}/pip" install ${PACKAGE_NAME} --no-index -f "$DISTDIR"
+cd "${prjdir}"
+for pyver in $PYVERS; do
+    pybin="/opt/python/${pyver}/bin"
+    "${pybin}/pip" install ${PACKAGE_NAME} --no-index -f "$distdir"
 
     # Print psycopg and libpq versions
-    "${PYBIN}/python" -c "import psycopg2; print(psycopg2.__version__)"
-    "${PYBIN}/python" -c "import psycopg2; print(psycopg2.__libpq_version__)"
-    "${PYBIN}/python" -c "import psycopg2; print(psycopg2.extensions.libpq_version())"
+    "${pybin}/python" -c "import psycopg2; print(psycopg2.__version__)"
+    "${pybin}/python" -c "import psycopg2; print(psycopg2.__libpq_version__)"
+    "${pybin}/python" -c "import psycopg2; print(psycopg2.extensions.libpq_version())"
 
     # Fail if we are not using the expected libpq library
     if [[ "${WANT_LIBPQ:-}" ]]; then
-        "${PYBIN}/python" -c "import psycopg2, sys; sys.exit(${WANT_LIBPQ} != psycopg2.extensions.libpq_version())"
+        "${pybin}/python" -c "import psycopg2, sys; sys.exit(${WANT_LIBPQ} != psycopg2.extensions.libpq_version())"
     fi
 
-    "${PYBIN}/python" -c "import tests; tests.unittest.main(defaultTest='tests.test_suite')"
+    "${pybin}/python" -c "import tests; tests.unittest.main(defaultTest='tests.test_suite')"
 done
 
 # Restore the libpq packages
